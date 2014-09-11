@@ -15,7 +15,7 @@ Options
 =======
 * file: 'path to TS file'
 * fileEncoding: [ascii | utf-8], optional flag to provide external ts file encoding, if necessary.
-* source: <string representation of your TS>
+* source: 'string representation of your TS'
 
-* Note that the file and source options are mutually exclusive.
+Note that the file and source options are mutually exclusive.
 
