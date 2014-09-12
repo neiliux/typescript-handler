@@ -7,7 +7,7 @@ var expect = require('chai').expect,
  * Unit tests for public require function
  * @module Unit tests for public require function
  */
-describe('require tests', function() {
+describe('require unit tests', function() {
     var sinonSandbox;
     var testModule;
 

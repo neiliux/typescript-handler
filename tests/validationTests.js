@@ -65,4 +65,16 @@ describe('general validation tests', function() {
 
         expect(sut.require.bind(sut, options)).to.throw('Unable to determine which data source to use. Both defined.');
     });
+
+    it('should set auto-generated path on options when compiling to disk', function() {
+       var options = {
+           source: 'var x:number=100;'
+       };
+
+        sinonSandbox.stub(fs, 'existsSync', function() { return false; });
+        sinonSandbox.stub(fs, 'mkdirSync', function() { });
+        sinonSandbox.stub(fs, 'writeFileSync', function() { });
+        sut.compileToDisk(options);
+        expect(options.compiledPath).to.exist;
+    });
 });

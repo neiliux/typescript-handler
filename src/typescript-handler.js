@@ -1,5 +1,6 @@
 var tsApi = require('typescript-api');
 var fs = require('fs');
+var path = require('path');
 
 /**
  * @module typescript-handler module
@@ -8,6 +9,32 @@ var fs = require('fs');
 module.exports = (function() {
     /** Default encoding of external TS file */
     var defaultFileEncoding = 'utf-8';
+    var compiledFilesDirectory = null;
+
+    /**
+     * Run cleanup when our process is finished.
+     */
+    process.on('exit', function() {
+        if (compiledFilesDirectory) {
+            removeFolder(compiledFilesDirectory);
+        }
+    });
+
+    // TODO: Need to refactor this into separate module.
+    /**
+     * Removes a folder and all files within.
+     * @param {string} folder - Path of folder.
+     */
+    function removeFolder(folder) {
+        var directoryExists = fs.existsSync(folder);
+        if (directoryExists) {
+            fs.readdirSync(folder).forEach(function (file) {
+                var fullPath = path.join(folder, file);
+                fs.unlinkSync(fullPath);
+            });
+            fs.rmdirSync(folder);
+        }
+    }
 
     /**
      * Wrapper for importing CommonJS module.
@@ -73,11 +100,22 @@ module.exports = (function() {
      * Reads and returns the contents of a file synchronously.
      * @private
      * @param {string} path - Path to file
-     * @param {encoding} encoding - Encoding of file
+     * @param {string} encoding - Encoding of file
      * @returns {NodeBuffer|string}
      */
     function readFile(path, encoding) {
         return fs.readFileSync(path, encoding);
+    }
+
+    /**
+     * Writes contents to a file synchronously.
+     * @private
+     * @param {string} path - Path to file
+     * @param {string} encoding - Encoding of file
+     * @param {string} contents - Contents to write to file
+     */
+    function writeFile(path, encoding, contents) {
+        fs.writeFileSync(path, contents, encoding);
     }
 
     /**
@@ -109,6 +147,26 @@ module.exports = (function() {
         }
     }
 
+    /**
+     * Validation specific to compileToDisk branch.
+     * @private
+     * @param {Object} options - Object that represents the compilation context.
+     */
+    function compileToDiskValidateOptions(options) {
+        if (!options.compiledPath) {
+            options.compiledPath = 'compiled_tmp/untitled.js';
+        }
+
+        var filePath = path.dirname(options.compiledPath);
+        if (!fs.existsSync(filePath)) {
+            fs.mkdirSync(filePath);
+        }
+    }
+
+    function setCompiledFilesDirectory(filePath) {
+        compiledFilesDirectory = path.dirname(filePath);
+    }
+
     return {
         /**
          * Compiles and imports the passed TS module.
@@ -132,7 +190,7 @@ module.exports = (function() {
         /**
          * Compiles the passed TS and returns the compilation as a string.
          * @public
-         * @param {Object} options
+         * @param {Object} options - Context for compilation.
          * @returns {string} Raw compiled JS
          */
         compile: function (options) {
@@ -151,6 +209,40 @@ module.exports = (function() {
             }
 
             return text;
+        },
+
+        /**
+         * Compiles the passed TS to a JS file on the filesystem.
+         * @public
+         * @param {Object} options - Context for compilation.
+         */
+        compileToDisk: function (options) {
+            validateOptions(options);
+            compileToDiskValidateOptions(options);
+
+            var compiledText, compiledResult;
+            setCompiledFilesDirectory(options.compiledPath);
+
+            if (options.source) {
+                compiledResult = compile(options);
+                compiledText = compiledResult.outputFiles[0].text;
+            } else if (options.file) {
+                var contents = readFile(options.file, options.fileEncoding);
+                compiledResult = compile({
+                    source: contents
+                });
+                compiledText = compiledResult.outputFiles[0].text;
+            }
+
+            writeFile(options.compiledPath, options.fileEncoding, compiledText);
+
+            return {
+                path: options.compiledPath,
+                require: function() {
+                    var compiledJs = readFile(options.compiledPath, options.fileEncoding);
+                    return require(compiledJs.toString());
+                }
+            };
         }
     };
 })();
