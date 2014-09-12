@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: tests/compileTests.js</title>
+    <title>JSDoc: Source: tests/compileToDiskTests.js</title>
     
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">Source: tests/compileTests.js</h1>
+    <h1 class="page-title">Source: tests/compileToDiskTests.js</h1>
     
     
 
@@ -31,10 +31,10 @@
     sut = require('../src/typescript-handler');
 
 /**
- * Unit tests for public compile function
+ * Unit tests for public compileToDisk function
  * @module Unit tests for public compile function
  */
-describe('compile unit tests', function() {
+describe('compileToDisk unit tests', function() {
     var sinonSandbox;
     var testModule;
 
@@ -47,28 +47,17 @@ describe('compile unit tests', function() {
         sinonSandbox.restore();
     });
 
+    it('should write file with valid context', function() {
 
-    it('compile with source returns the expected JS code', function() {
-        var options = {
+        sinonSandbox.stub(fs, 'existsSync', function() { return false; });
+        sinonSandbox.stub(fs, 'mkdirSync', function() { });
+        var writeStub = sinonSandbox.stub(fs, 'writeFileSync', function() { });
+
+        sut.compileToDisk({
             source: testModule
-        };
+        });
 
-        var compiledCode = sut.compile(options);
-        // TODO: Need to find a better method for verifying this.
-        expect(compiledCode.length).to.be.greaterThan(14);
-    });
-
-    it('compile with file returns the expected JS code', function() {
-        var options = {
-            file: 'mockFile.ts'
-        };
-
-        sinonSandbox.stub(fs, 'existsSync', function() { return true; });
-        sinonSandbox.stub(fs, 'readFileSync', function() { return testModule; });
-
-        var compiledCode = sut.compile(options);
-        // TODO: Need to find a better method for verifying this.
-        expect(compiledCode.length).to.be.greaterThan(14);
+        expect(writeStub.called).to.equal(true);
     });
 });</code></pre>
         </article>
