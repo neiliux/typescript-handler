@@ -11,7 +11,7 @@ var ts = require('typescript-handler');
 var myTsModule = ts.require({ file: 'path_to_your_ts_file' });
 myTsModule.invokeAFunction();
 ```
-#### Compile a TS module onto disk
+##### Compile a TS module onto disk
 ```
 var ts = require('typescript-handler');
 var compileResult = ts.compileToDisk({ file: 'path_to_your_ts_file' });
