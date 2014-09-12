@@ -3,6 +3,10 @@ var expect = require('chai').expect,
     sinon = require('sinon'),
     sut = require('../src/typescript-handler');
 
+/**
+ * Unit tests for public compile function
+ * @module Unit tests for public compile function
+ */
 describe('compile tests', function() {
     var sinonSandbox;
     var testModule;

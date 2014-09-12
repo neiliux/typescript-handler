@@ -20,13 +20,21 @@ module.exports = function(grunt) {
                     mangle: true
                 }
             }
+        },
+        jsdoc: {
+            dist: {
+                src: ['src/*.js', 'tests/*.js'],
+                dest: 'docs'
+            }
         }
     });
 
     grunt.loadNpmTasks('grunt-simple-mocha');
     grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-jsdoc');
 
-    grunt.registerTask('default', ['simplemocha', 'uglify']);
+    grunt.registerTask('default', ['simplemocha', 'uglify', 'jsdoc']);
     grunt.registerTask('tests', ['simplemocha']);
     grunt.registerTask('build', ['uglify']);
+    grunt.registerTask('docs', ['jsdoc']);
 };
