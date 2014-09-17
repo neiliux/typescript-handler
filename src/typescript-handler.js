@@ -6,16 +6,16 @@ var path = require('path');
  * @module typescript-handler module
  * @description Expressive NodeJS module for importing and managing TS compilation at runtime.
  */
-module.exports = (function() {
-    /** Default encoding of external TS file */
+module.exports = (function TypeScriptHandler() {
     var defaultFileEncoding = 'utf-8';
     var compiledFilesDirectory = null;
+    var removeCompiledFiles = true;
 
     /**
      * Run cleanup when our process is finished.
      */
     process.on('exit', function() {
-        if (compiledFilesDirectory) {
+        if (compiledFilesDirectory && removeCompiledFiles) {
             removeFolder(compiledFilesDirectory);
         }
     });
@@ -157,6 +157,14 @@ module.exports = (function() {
             options.compiledPath = 'compiled_tmp/untitled.js';
         }
 
+        if (typeof options.deleteOnExit != 'undefined') {
+            console.log('set');
+            removeCompiledFiles = options.deleteOnExit;
+        } else {
+            console.log('default');
+            removeCompiledFiles = true;
+        }
+
         var filePath = path.dirname(options.compiledPath);
         if (!fs.existsSync(filePath)) {
             fs.mkdirSync(filePath);
@@ -174,7 +182,7 @@ module.exports = (function() {
          * @param {Object} options
          * @returns {Object} Node Module
          */
-        require: function(options) {
+        require: function (options) {
             validateOptions(options);
             var result;
 
@@ -238,12 +246,13 @@ module.exports = (function() {
 
             return {
                 path: options.compiledPath,
-                require: function() {
+                require: function () {
                     var compiledJs = readFile(options.compiledPath, options.fileEncoding);
                     return require(compiledJs.toString());
                 }
             };
         }
+
     };
 })();
 

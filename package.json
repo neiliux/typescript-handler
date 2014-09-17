@@ -1,6 +1,6 @@
 {
   "name": "typescript-handler",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Expressive NodeJS module for importing and managing TS compilation at runtime.",
   "main": "src/typescript-handler.js",
   "scripts": {
