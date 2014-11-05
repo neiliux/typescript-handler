@@ -41,5 +41,5 @@ var importedModule = compiledResult.require();
 * source: 'string representation of your TS'
 * deleteOnExit: [true | false] - Remove generated JS file (including any generated sub-folders). Default is true.
 
-Note that the file and source options are mutually exclusive...
+Note that the file and source options are mutually exclusive.
 
